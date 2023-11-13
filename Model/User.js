@@ -19,6 +19,7 @@ userSchema.methods.toJSON = function () {
   delete obj.createAt;
   return obj;
 };
+
 userSchema.methods.generateToken = async function () {
   const token = await jwt.sign({ _id: this.id }, JWT_SECRET_KEY, {expiresIn:'7d'});
   return token;

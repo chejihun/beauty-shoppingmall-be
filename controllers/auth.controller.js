@@ -20,7 +20,7 @@ authController.loginWithEmail = async (req, res) => {
     }
     throw new Error("이메일 혹은 비밀번호가 잘못되었습니다.")
   } catch (error) {
-    res.status(400).json({ status: 'fail', error: error.message });
+    return res.status(400).json({ status: 'fail', error: error.message });
   }
 };
 
