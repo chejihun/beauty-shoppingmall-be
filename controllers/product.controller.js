@@ -1,5 +1,7 @@
+const { response } = require('express');
 const Product = require('../Model/Product')
 
+const PAGE_SIZE = 5
 const productController = {}
 
 productController.createProduct = async (req, res) => {
@@ -27,12 +29,19 @@ productController.getProduct = async (req, res) => {
   try {
     const { page, name } = req.query
     const SearchConditions = name ?
-    { name: { $regex: name, $options: 'i' }, isDeleted:false }
-     : { isDeleted:false}
+      { name: { $regex: name, $options: 'i' }, isDeleted: false }
+      : { isDeleted: false }
     let query = Product.find(SearchConditions)
-
+    let response = { status: "success" }
+    if (page) {
+      query.skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE);
+      const totalItemNum = await Product.find(SearchConditions).count()
+      const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE)
+      response.totalPageNum = totalPageNum
+    }
     const productList = await query.exec()
-    res.status(200).json({ status: 'success', data: productList });
+    response.data = productList
+    res.status(200).json(response);
   } catch (error) {
     res.status(400).json({ status: 'fail', error: error.message });
   }
@@ -63,10 +72,10 @@ productController.deleteProduct = async (req, res) => {
       { _id: productId },
       { isDeleted: true }
     )
-    if(!product) {
+    if (!product) {
       throw new Error("상품을 찾을 수 없습니다")
     }
-    res.status(200).json({ status: 'success'})
+    res.status(200).json({ status: 'success' })
   } catch (error) {
     res.status(400).json({ status: 'fail', error: error.message });
   }
