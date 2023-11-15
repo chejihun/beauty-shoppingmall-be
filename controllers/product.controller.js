@@ -27,7 +27,7 @@ productController.createProduct = async (req, res) => {
 
 productController.getProduct = async (req, res) => {
   try {
-    const { page, name } = req.query
+    const { page, name } = req.query 
     const SearchConditions = name ?
       { name: { $regex: name, $options: 'i' }, isDeleted: false }
       : { isDeleted: false }
@@ -80,4 +80,16 @@ productController.deleteProduct = async (req, res) => {
     res.status(400).json({ status: 'fail', error: error.message });
   }
 }
+
+productController.getProductById = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+    if (!product) throw new Error("상품을 찾을 수 없습니다.");
+    res.status(200).json({ status: "success", data: product });
+  } catch (error) {
+    return res.status(400).json({ status: "fail", error: error.message });
+  }
+};
+
 module.exports = productController;
