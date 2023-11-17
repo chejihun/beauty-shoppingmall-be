@@ -24,7 +24,8 @@ productController.createProduct = async (req, res) => {
     res.status(400).json({ status: 'fail', error: error.message });
   }
 };
-
+//현재 프론트에서 제품리스트를 가져온 후 -> 정렬을 시키는데 이걸 백에서 정렬을 미리 한 후 ->
+//프론트에서 그걸 불러오게 수정할것
 productController.getProduct = async (req, res) => {
   try {
     const { page, name } = req.query 
