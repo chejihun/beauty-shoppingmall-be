@@ -1,4 +1,3 @@
-const { response } = require('express');
 const Product = require('../Model/Product')
 
 const PAGE_SIZE = 5
