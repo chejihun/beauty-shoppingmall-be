@@ -11,13 +11,17 @@ router.post(
 
 router.get("/", postController.getPost)
 
-router.put("/:id", (req, res) => {
-  res.send("post update")
-})
+router.put(
+  "/:id",
+  authController.authenticate,
+  authController.checkAdminPermission,
+  postController.updatePost
+)
 
 router.delete("/:id", (req, res) => {
   res.send("post delete")
 })
 
+router.get("/:id", postController.getPostById);
 
 module.exports = router;

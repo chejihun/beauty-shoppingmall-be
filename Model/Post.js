@@ -7,8 +7,7 @@ const postSchema = Schema({
   description: { type: String, required: true },
   image: { type: String },
   category: { type: Array, required: true },
-  name: { type: String, required: true },
-  // createdAt: { type: Date, default: Date.now },
+  userId: { type: mongoose.ObjectId, ref: User },
 }, { timestamps: true });
 
 postSchema.methods.toJSON = function () {
