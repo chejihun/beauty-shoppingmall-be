@@ -7,21 +7,26 @@ router.post(
   "/",
   authController.authenticate,
   postController.createPost
-  )
+)
 
 router.get("/", postController.getPost)
 
 router.put(
   "/:id",
   authController.authenticate,
-  authController.checkAdminPermission,
-  postController.updatePost
+  postController.editPost
 )
 
-router.delete("/:id", (req, res) => {
-  res.send("post delete")
-})
+router.delete(
+  "/:id",
+  authController.authenticate,
+  postController.deletePost
+  )
 
-router.get("/:id", postController.getPostById);
+router.get(
+  "/:id",
+  authController.authenticateLight,
+  postController.getPostById
+  );
 
 module.exports = router;

@@ -47,12 +47,26 @@ authController.checkAdminPermission = async (req, res, next) => {
       throw new Error("접근 권한이 없습니다.")
     }
     next();
-
   } catch (error) {
     res.status(400).json({ status: 'fail', error: error.message });
   }
 }
 
-
+authController.authenticateLight = (req, res, next) => {
+  try {
+    const tokenString = req.headers.authorization;
+    if (!tokenString) {
+      return next();
+    }
+    const token = tokenString.replace('Bearer ', '');
+    jwt.verify(token, JWT_SECRET_KEY, (error, payload) => {
+      if (error) { return next(); }
+      req.userId = payload._id;
+      next();
+    });
+  } catch (error) {
+    res.status(400).json({ status: 'fail', error: error.message });
+  }
+};
 
 module.exports = authController;

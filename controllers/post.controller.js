@@ -28,19 +28,14 @@ postController.getPost = async (req, res) => {
       .limit(PAGE_SIZE)
 
     const userIdList = [...new Set(postList.map(post => post.userId))];
-    // console.log('userIdList:', userIdList);
     const userList = await User.find({ _id: { $in: userIdList } });
-    // console.log('userList:', userList);
-
     const updatedPostList = postList.map(post => {
       const user = userList.find(user => user._id.toString() === post.userId.toString());
       return {
-        ...post.toObject(), 
+        ...post.toObject(),
         userName: user ? user.name : 'Unknown',
       };
     });
-    // console.log('postList:', updatedPostList);
-
     const totalPostNum = await Post.find({}).countDocuments();
     const totalPageNum = Math.ceil(totalPostNum / PAGE_SIZE);
 
@@ -49,7 +44,6 @@ postController.getPost = async (req, res) => {
       data: updatedPostList,
       totalPageNum: totalPageNum,
     });
-    // console.log('postList:', updatedPostList);
   } catch (error) {
     res.status(400).json({ status: 'fail', error: error.message });
   }
@@ -60,28 +54,54 @@ postController.getPostById = async (req, res) => {
     const postId = req.params.id;
     const post = await Post.findById(postId);
     if (!post) throw new Error("게시물을 찾을 수 없습니다.");
-    res.status(200).json({ status: "success", data: post });
+    const user = await User.findById(post.userId)
+
+    const loggedInUserId = req.userId;
+    const postAuthorId = post.userId.toString();
+    const rightEditPost = loggedInUserId === postAuthorId;
+    const postWithUserName = {
+      ...post.toObject(),
+      userName: user ? user.name : 'Unknown',
+      rightEdit: rightEditPost,
+    };
+
+    res.status(200).json({ status: "success", data: postWithUserName });
   } catch (error) {
     return res.status(400).json({ status: "fail3", error: error.message });
   }
 }
 
-postController.updatePost = async (req, res) => {
+postController.editPost = async (req, res) => {
   try {
     const postId = req.params.id;
-    const { title, description, image, category } = req.body
-    const Post = await Post.findByIdAndUpdate(
-      { _id: postId },
+    const { title, description, image, category } = req.body;
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      postId,
       { title, description, image, category },
       { new: true }
-    )
-    if (!post) {
-      throw new Error("게시물이 존재하지 않습니다")
+    );
+    if (!updatedPost) {
+      return res.status(404).json({ status: 'fail', error: '게시물을 찾을 수 없습니다.' });
     }
-    res.status(200).json({ status: 'success', data: post })
+    res.status(200).json({ status: 'success', data: updatedPost })
   } catch (error) {
     res.status(400).json({ status: 'fail', error: error.message });
   }
 }
+
+postController.deletePost = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const deletePost = await Post.findByIdAndDelete(postId);
+    if (!deletePost) {
+      return res.status(404).json({ error: '게시물을 찾을 수 없습니다.' });
+    }
+    return res.status(200).json({ message: '게시물이 삭제되었습니다.', deletePost });
+  } catch (error) {
+    res.status(400).json({ status: 'fail', error: error.message });
+  }
+};
+
 
 module.exports = postController;
