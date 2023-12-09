@@ -3,9 +3,11 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+const morgan = require('morgan');
 const indexRouter = require('./Routes/index')
 
 require('dotenv').config();
+app.use(morgan('dev'))
 app.use(cors());
 app.use(bodyParser.json({ limit: '100mb' })); //용량제한 늘리기
 app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));

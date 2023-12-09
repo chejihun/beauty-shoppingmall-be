@@ -5,10 +5,12 @@ const User = require('./User');
 const postSchema = Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  image: { type: String },
-  category: { type: Array, required: true },
-  userId: { type: mongoose.ObjectId, ref: User },
+  image: { type: String  },
+  category: { type: Array, required: true, index: true },
+  userId: { type: mongoose.ObjectId, ref: User, index: true },
 }, { timestamps: true });
+
+postSchema.index({ userId: 1, category: 1});
 
 postSchema.methods.toJSON = function () {
   const obj = this._doc;

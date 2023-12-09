@@ -1,6 +1,6 @@
 const Product = require('../Model/Product')
 
-const PAGE_SIZE = 5
+const PAGE_SIZE = 7
 const productController = {}
 
 productController.createProduct = async (req, res) => {
@@ -85,6 +85,10 @@ productController.getProductById = async (req, res) => {
   try {
     const productId = req.params.id;
     const product = await Product.findById(productId);
+    // product의 category 로 Product list 쿼리 ($in})를 한다. 
+    // return 할 떄, product 내부에 list 데이터도 추가한다.  (아래 보이는 것들)
+    // 요청을 2번하지 말고, 한꺼번에 가져와라. 
+    // Post 쪽 참고하기.
     if (!product) throw new Error("상품을 찾을 수 없습니다.");
     res.status(200).json({ status: "success", data: product });
   } catch (error) {

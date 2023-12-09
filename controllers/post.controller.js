@@ -2,7 +2,6 @@ const Post = require('../Model/Post')
 const User = require('../Model/User');
 const mongoose = require('mongoose');
 const postController = {}
-const PAGE_SIZE = 5
 
 postController.createPost = async (req, res) => {
   try {
@@ -19,13 +18,19 @@ postController.createPost = async (req, res) => {
 
 postController.getPost = async (req, res) => {
   try {
-    const { page } = req.query;
-    const skipAmount = (page - 1) * PAGE_SIZE;
+    const { page=1, withDescription=false, category, pageSize=5 } = req.query;
+    const skipAmount = (page - 1) * pageSize;
 
-    const postList = await Post.find({})
-      .sort({ createdAt: -1 })
-      .skip(skipAmount)
-      .limit(PAGE_SIZE)
+    const selectFields = withDescription ? '' : '-description';
+
+    const [postList, totalPostNum] = await Promise.all([
+      Post.find({category: {$in: [category]}})
+        .sort({ createdAt: -1 })
+        .skip(skipAmount)
+        .limit(pageSize)
+        .select(selectFields),
+      Post.find({category: {$in: [category]}}).countDocuments()
+    ])
 
     const userIdList = [...new Set(postList.map(post => post.userId))];
     const userList = await User.find({ _id: { $in: userIdList } });
@@ -36,13 +41,12 @@ postController.getPost = async (req, res) => {
         userName: user ? user.name : 'Unknown',
       };
     });
-    const totalPostNum = await Post.find({}).countDocuments();
-    const totalPageNum = Math.ceil(totalPostNum / PAGE_SIZE);
 
     res.status(200).json({
       status: "success",
       data: updatedPostList,
-      totalPageNum: totalPageNum,
+      totalPostNum,
+      page
     });
   } catch (error) {
     res.status(400).json({ status: 'fail', error: error.message });
