@@ -6,8 +6,9 @@ const postController = {}
 postController.createPost = async (req, res) => {
   try {
     const { userId } = req;
-    const { title, description, image, category } = req.body
-    const newPost = new Post({ title, description, image, category, userId })
+    const { title, description, image, category, startDate, endDate  } = req.body
+
+    const newPost = new Post({ title, description, image, category, userId, startDate, endDate  })
     await newPost.save();
 
     res.status(200).json({ status: "success", data: newPost });
@@ -18,7 +19,7 @@ postController.createPost = async (req, res) => {
 
 postController.getPost = async (req, res) => {
   try {
-    const { page=1, withDescription=false, category, pageSize=5 } = req.query;
+    const { page=1, withDescription=false, category, pageSize } = req.query;
     const skipAmount = (page - 1) * pageSize;
 
     const selectFields = withDescription ? '' : '-description';
@@ -79,11 +80,12 @@ postController.editPost = async (req, res) => {
   try {
     const postId = req.params.id;
     const { title, description, image, category } = req.body;
-
+   
     const updatedPost = await Post.findByIdAndUpdate(
       postId,
       { title, description, image, category },
       { new: true }
+      
     );
     if (!updatedPost) {
       return res.status(404).json({ status: 'fail', error: '게시물을 찾을 수 없습니다.' });

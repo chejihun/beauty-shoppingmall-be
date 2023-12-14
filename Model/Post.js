@@ -8,6 +8,8 @@ const postSchema = Schema({
   image: { type: String  },
   category: { type: Array, required: true, index: true },
   userId: { type: mongoose.ObjectId, ref: User, index: true },
+  startDate: { type: Date, default: null },
+  endDate: { type: Date, default: null },
 }, { timestamps: true });
 
 postSchema.index({ userId: 1, category: 1});

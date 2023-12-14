@@ -27,7 +27,7 @@ productController.createProduct = async (req, res) => {
 //프론트에서 그걸 불러오게 수정할것
 productController.getProduct = async (req, res) => {
   try {
-    const { page, name } = req.query 
+    const { page, name } = req.query
     const SearchConditions = name ?
       { name: { $regex: name, $options: 'i' }, isDeleted: false }
       : { isDeleted: false }
@@ -87,7 +87,7 @@ productController.getProductById = async (req, res) => {
     const product = await Product.findById(productId);
     // product의 category 로 Product list 쿼리 ($in})를 한다. 
     // return 할 떄, product 내부에 list 데이터도 추가한다.  (아래 보이는 것들)
-    // 요청을 2번하지 말고, 한꺼번에 가져와라. 
+    // 요청을 2번하지 말고, 한꺼번에 가져오기 
     // Post 쪽 참고하기.
     if (!product) throw new Error("상품을 찾을 수 없습니다.");
     res.status(200).json({ status: "success", data: product });
@@ -95,5 +95,36 @@ productController.getProductById = async (req, res) => {
     return res.status(400).json({ status: "fail", error: error.message });
   }
 };
+
+productController.checkStock = async (item) => {
+  // 구매하려는 제품 재고 정보체크하고 사이즈/수량 비교
+  // 재고 부족이면 에러 보내고 아니면 기존 재고에서 구매 수량 뺴기
+  const product = await Product.findById(item.productId)
+  if (product.stock[item.size] < item.qty) {
+    return { isVerify: false, message: `${product.name}의 ${item.size} 재고가 부족합니다` }
+  }
+  const newStock = { ...product.stock }
+  newStock[item.size] -= item.qty
+  product.stock = newStock
+
+  await product.save()
+  return { isVerify: true }
+}
+
+productController.checkItemListStock = async (itemList) => {
+
+  const stockItemCheck = []
+  await Promise.all(
+    itemList.map(async (item) => {
+      const stockCheck = await productController.checkStock(item)
+      if (!stockCheck.isVerify) {
+        stockItemCheck.push({ item, message: stockCheck.message })
+      }
+      return stockCheck;
+    })
+  );
+  return stockItemCheck;
+}
+
 
 module.exports = productController;
