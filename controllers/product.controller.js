@@ -1,6 +1,6 @@
 const Product = require('../Model/Product')
 
-const PAGE_SIZE = 7
+const PAGE_SIZE = 10
 const productController = {}
 
 productController.createProduct = async (req, res) => {
@@ -27,20 +27,23 @@ productController.createProduct = async (req, res) => {
 //프론트에서 그걸 불러오게 수정할것
 productController.getProduct = async (req, res) => {
   try {
-    const { page, name } = req.query
+    const { page=1, name} = req.query
+
     const SearchConditions = name ?
       { name: { $regex: name, $options: 'i' }, isDeleted: false }
       : { isDeleted: false }
     let query = Product.find(SearchConditions)
     let response = { status: "success" }
+    
     if (page) {
-      query.skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE);
+      query.skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE).sort({ createdAt: -1 })
       const totalItemNum = await Product.find(SearchConditions).count()
       const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE)
       response.totalPageNum = totalPageNum
     }
     const productList = await query.exec()
     response.data = productList
+  
     res.status(200).json(response);
   } catch (error) {
     res.status(400).json({ status: 'fail', error: error.message });
