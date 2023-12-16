@@ -27,7 +27,7 @@ productController.createProduct = async (req, res) => {
 //프론트에서 그걸 불러오게 수정할것
 productController.getProduct = async (req, res) => {
   try {
-    const { page=1, name} = req.query
+    const { page, name, sort } = req.query
 
     const SearchConditions = name ?
       { name: { $regex: name, $options: 'i' }, isDeleted: false }
@@ -35,8 +35,23 @@ productController.getProduct = async (req, res) => {
     let query = Product.find(SearchConditions)
     let response = { status: "success" }
     
+    if (sort) {
+      // 정렬 조건에 따라서 서버에서 정렬 이걸 사용시 마지막 배열이 문제가 생긴다?
+      if (sort === "최신순") {
+        query.sort({ createdAt: -1 });
+      } else if (sort === "가격높은순") {
+        query.sort({ price: -1 });
+      } else if (sort === "가격낮은순") {
+        query.sort({ price: 1 });
+      }
+    } else {
+      query.sort({ createdAt: -1 });
+    }
+    
+
     if (page) {
-      query.skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE).sort({ createdAt: -1 })
+      query.skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE)
+      // .sort({ createdAt: -1 })
       const totalItemNum = await Product.find(SearchConditions).count()
       const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE)
       response.totalPageNum = totalPageNum

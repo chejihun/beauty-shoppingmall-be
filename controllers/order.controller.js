@@ -1,4 +1,3 @@
-
 const orderController = {};
 const Order = require("../Model/Order");
 const productController = require("./product.controller");
