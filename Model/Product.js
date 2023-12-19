@@ -8,7 +8,7 @@ const productSchema = Schema({
   category: { type: Array, required: true },
   description: { type: String, required: true },
   price: { type: Number, required: true },
-  size: { type: Array, required: true },
+  // size: { type: Array, required: true },
   stock: { type: Object, required: true },
   status: { type: String, default: "active" },
   isDeleted: { type: Boolean, default: false } // 삭제상품 가리기용

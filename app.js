@@ -13,7 +13,10 @@ app.use(bodyParser.json({ limit: '100mb' })); //용량제한 늘리기
 app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
 app.use('/api', indexRouter)
 
-const mongoURI = process.env.LOCAL_DB_ADDRESS;
+const LOCAL_DB_ADDRESS = process.env.LOCAL_DB_ADDRESS;
+const mongoURI = LOCAL_DB_ADDRESS
+
+
 mongoose
   .connect(mongoURI)
   .then(() => console.log('mongoose connected'))

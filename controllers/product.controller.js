@@ -35,18 +35,18 @@ productController.getProduct = async (req, res) => {
     let query = Product.find(SearchConditions)
     let response = { status: "success" }
     
-    if (sort) {
-      // 정렬 조건에 따라서 서버에서 정렬 이걸 사용시 마지막 배열이 문제가 생긴다?
-      if (sort === "최신순") {
-        query.sort({ createdAt: -1 });
-      } else if (sort === "가격높은순") {
-        query.sort({ price: -1 });
-      } else if (sort === "가격낮은순") {
-        query.sort({ price: 1 });
-      }
-    } else {
-      query.sort({ createdAt: -1 });
-    }
+    // if (sort) {
+    //   // 정렬 조건에 따라서 서버에서 정렬 이걸 사용시 마지막 배열이 문제가 생긴다?
+    //   if (sort === "최신순") {
+    //     query.sort({ createdAt: -1 });
+    //   } else if (sort === "가격높은순") {
+    //     query.sort({ price: -1 });
+    //   } else if (sort === "가격낮은순") {
+    //     query.sort({ price: 1 });
+    //   }
+    // } else {
+    //   query.sort({ createdAt: -1 });
+    // }
     
 
     if (page) {
