@@ -14,8 +14,8 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
 app.use('/api', indexRouter)
 
 const LOCAL_DB_ADDRESS = process.env.LOCAL_DB_ADDRESS;
-const mongoURI = LOCAL_DB_ADDRESS
-
+const CLOUD_DB_ADDRESS = process.env.CLOUD_DB_ADDRESS
+const mongoURI = process.env.NODE_ENV === "production" ? CLOUD_DB_ADDRESS : LOCAL_DB_ADDRESS;
 
 mongoose
   .connect(mongoURI)
